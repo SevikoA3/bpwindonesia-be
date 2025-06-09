@@ -20,7 +20,7 @@ userRouter.put("/:id", verifyToken, upload.single("profile_pic"), updateUser);
 userRouter.delete("/:id", verifyToken, deleteUser);
 userRouter.post("/", createUser);
 userRouter.post("/login", login);
-userRouter.post("/logout", logout);
+userRouter.post("/logout", verifyToken, logout);
 userRouter.post("/refresh-token", refreshAccessToken);
 
 export default userRouter;
