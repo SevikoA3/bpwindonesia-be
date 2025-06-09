@@ -14,7 +14,7 @@ async function streamUpload(buffer, options = {}) {
 
 export const getEvents = async (req, res) => {
   try {
-    const events = await Event.findAll({ include: "creator" });
+    const events = await Event.findAll({ include: "eventCreator" });
     res.json(events);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -23,7 +23,7 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    const event = await Event.findByPk(req.params.id, { include: "creator" });
+    const event = await Event.findByPk(req.params.id, { include: "eventCreator" });
     if (!event) return res.status(404).json({ error: "Event not found" });
     res.json(event);
   } catch (err) {
