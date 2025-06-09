@@ -1,12 +1,8 @@
 # BPW Indonesia Backend API Documentation
 
-This documentation provides a comprehensive overview of the available API endpoints for the BPW Indonesia backend. The API is built using Express.js and follows RESTful conventions. All endpoints require authentication via JWT unless otherwise specified.
-
----
-
 ## Authentication
 
-All endpoints (except authentication endpoints, if any) require a valid JWT token in the `Authorization` header:
+Beberapa endpoint membutuhkan JWT token. Login terlebih dahulu untuk mendapatkan token, lalu gunakan di header:
 
 ```
 Authorization: Bearer <token>
@@ -14,317 +10,168 @@ Authorization: Bearer <token>
 
 ---
 
-## API Endpoints
+## User
 
-### Users API
-**Base URL:** `/users`
+### Register User
 
-#### Fields
-- `id` (integer, auto-increment, primary key)
-- `email` (string, required, unique)
-- `username` (string, required, unique)
-- `password` (string, required)
-- `refreshToken` (text, optional)
-- `role` (enum: `user`, `admin`, default: `user`)
-- `profile_pic_url` (string, optional)
-- `fullName` (string, optional)
-- `phone` (string, optional)
-- `birthDate` (date, optional)
-- `domicile` (string, optional)
-- `position` (string, optional)
-- `institution` (string, optional)
-- `industry` (string, optional)
-
-#### 1. Get All Users
-- **Endpoint:** `GET /users/`
-- **Auth:** Required
-- **Description:** Retrieve a list of all users.
+- **POST** `/api/users`
+- **Body (JSON):**
+  - email, username, password, role, fullName, phone, birthDate, domicile, position, institution, industry, membershipTypeId (opsional)
 - **Response:**
-  - `200 OK`: Array of user objects
+  User baru & token akses
 
-#### 2. Get User by ID
-- **Endpoint:** `GET /users/:id`
-- **Auth:** Required
-- **Description:** Retrieve details of a specific user by ID.
-- **URL Params:**
-  - `id` (string): User ID
-- **Response:**
-  - `200 OK`: User object
-  - `404 Not Found`: User not found
+### Login
 
-#### 3. Create User
-- **Endpoint:** `POST /users/`
-- **Auth:** Not required
-- **Description:** Register a new user.
-- **Request Body:** JSON with user fields (see model)
+- **POST** `/api/users/login`
+- **Body (JSON):**
+  - username, password
 - **Response:**
-  - `201 Created`: Created user object
-  - `400 Bad Request`: Validation error
+  Token akses & refresh
 
-#### 4. Update User
-- **Endpoint:** `PUT /users/:id`
-- **Auth:** Required
-- **Description:** Update an existing user by ID. Supports file upload for `profile_pic`.
-- **URL Params:**
-  - `id` (string): User ID
-- **Request Body (multipart/form-data):**
-  - `profile_pic` (file, optional): New profile picture
-  - Other user fields (see model)
-- **Response:**
-  - `200 OK`: Updated user object
-  - `404 Not Found`: User not found
+### Logout
 
-#### 5. Delete User
-- **Endpoint:** `DELETE /users/:id`
-- **Auth:** Required
-- **Description:** Delete a user by ID.
-- **URL Params:**
-  - `id` (string): User ID
-- **Response:**
-  - `200 OK`: Deletion confirmation
-  - `404 Not Found`: User not found
+- **POST** `/api/users/logout`
+- **Header:** Authorization
 
-#### 6. Login
-- **Endpoint:** `POST /users/login`
-- **Auth:** Not required
-- **Description:** Authenticate user and receive JWT token.
-- **Request Body:** JSON with login credentials
-- **Response:**
-  - `200 OK`: Auth token and user info
-  - `401 Unauthorized`: Invalid credentials
+### Refresh Token
 
-#### 7. Logout
-- **Endpoint:** `POST /users/logout`
-- **Auth:** Not required
-- **Description:** Logout user (token invalidation if implemented).
-- **Response:**
-  - `200 OK`: Logout confirmation
+- **POST** `/api/users/refresh-token`
+- **Body (opsional):** `{ "refreshToken": "<token>" }`
 
-#### 8. Refresh Token
-- **Endpoint:** `POST /users/refresh-token`
-- **Auth:** Not required
-- **Description:** Refresh JWT access token.
-- **Request Body:** JSON with refresh token
-- **Response:**
-  - `200 OK`: New access token
+### Get All Users
+
+- **GET** `/api/users`
+- **Header:** Authorization
+
+### Get User by ID
+
+- **GET** `/api/users/:id`
+- **Header:** Authorization
+
+### Update User
+
+- **PUT** `/api/users/:id`
+- **Header:** Authorization
+- **Body:** form-data (gunakan form, bukan JSON!)
+  - Semua field user (lihat register)
+  - **profile_pic** (file, opsional)
+- **Catatan:** Untuk upload foto profil, gunakan form-data dan field `profile_pic`.
+
+### Delete User
+
+- **DELETE** `/api/users/:id`
+- **Header:** Authorization
 
 ---
 
-### Blogs API
-**Base URL:** `/blogs`
+## Blog
 
-#### Fields
-- `title` (string, required)
-- `content` (text, required)
-- `coverImage` (string, optional)
-- `uploadDate` (date, default: now)
+### Get All Blogs
 
-#### 1. Get All Blogs
-- **Endpoint:** `GET /blogs/`
-- **Auth:** Required
-- **Description:** Retrieve a list of all blogs.
-- **Response:**
-  - `200 OK`: Array of blog objects
+- **GET** `/api/blogs`
+- **Header:** Authorization
 
-#### 2. Get Blog by ID
-- **Endpoint:** `GET /blogs/:id`
-- **Auth:** Required
-- **Description:** Retrieve details of a specific blog by ID.
-- **URL Params:**
-  - `id` (string): Blog ID
-- **Response:**
-  - `200 OK`: Blog object
-  - `404 Not Found`: Blog not found
+### Get Blog by ID
 
-#### 3. Create Blog
-- **Endpoint:** `POST /blogs/`
-- **Auth:** Required
-- **Description:** Create a new blog. Supports file upload for `coverImage`.
-- **Request Body (multipart/form-data):**
-  - `coverImage` (file): Blog cover image
-  - Other blog fields (see model)
-- **Response:**
-  - `201 Created`: Created blog object
-  - `400 Bad Request`: Validation error
+- **GET** `/api/blogs/:id`
+- **Header:** Authorization
 
-#### 4. Update Blog
-- **Endpoint:** `PUT /blogs/:id`
-- **Auth:** Required
-- **Description:** Update an existing blog by ID. Supports file upload for `coverImage`.
-- **URL Params:**
-  - `id` (string): Blog ID
-- **Request Body (multipart/form-data):**
-  - `coverImage` (file, optional): New cover image
-  - Other blog fields (see model)
-- **Response:**
-  - `200 OK`: Updated blog object
-  - `404 Not Found`: Blog not found
+### Create Blog
 
-#### 5. Delete Blog
-- **Endpoint:** `DELETE /blogs/:id`
-- **Auth:** Required
-- **Description:** Delete a blog by ID.
-- **URL Params:**
-  - `id` (string): Blog ID
-- **Response:**
-  - `200 OK`: Deletion confirmation
-  - `404 Not Found`: Blog not found
+- **POST** `/api/blogs`
+- **Header:** Authorization
+- **Body:** form-data (gunakan form, bukan JSON!)
+  - title, content, authorId
+  - **coverImage** (file, wajib)
+- **Catatan:** Upload cover image dengan form-data field `coverImage`.
+
+### Update Blog
+
+- **PUT** `/api/blogs/:id`
+- **Header:** Authorization
+- **Body:** form-data (gunakan form, bukan JSON!)
+  - title, content, authorId
+  - **coverImage** (file, opsional)
+- **Catatan:** Upload cover image baru jika ingin mengganti.
+
+### Delete Blog
+
+- **DELETE** `/api/blogs/:id`
+- **Header:** Authorization
 
 ---
 
-### Events API
-**Base URL:** `/events`
+## Event
 
-#### Fields
-- `title` (string, required)
-- `subTitle` (string, optional)
-- `description` (text, required)
-- `date` (date, required)
-- `time` (string, required)
-- `location` (string, required)
-- `coverImage` (string, optional)
-- `registrationStart` (date, required)
-- `registrationEnd` (date, required)
+### Get All Events
 
-#### 1. Get All Events
-- **Endpoint:** `GET /events/`
-- **Auth:** Required
-- **Description:** Retrieve a list of all events.
-- **Response:**
-  - `200 OK`: Array of event objects
+- **GET** `/api/events`
+- **Header:** Authorization
 
-#### 2. Get Event by ID
-- **Endpoint:** `GET /events/:id`
-- **Auth:** Required
-- **Description:** Retrieve details of a specific event by its ID.
-- **URL Params:**
-  - `id` (string): Event ID
-- **Response:**
-  - `200 OK`: Event object
-  - `404 Not Found`: Event not found
+### Get Event by ID
 
-#### 3. Create Event
-- **Endpoint:** `POST /events/`
-- **Auth:** Required
-- **Description:** Create a new event. Supports file upload for `coverImage`.
-- **Request Body (multipart/form-data):**
-  - `coverImage` (file): Event cover image
-  - Other event fields (see model)
-- **Response:**
-  - `201 Created`: Created event object
-  - `400 Bad Request`: Validation error
+- **GET** `/api/events/:id`
+- **Header:** Authorization
 
-#### 4. Update Event
-- **Endpoint:** `PUT /events/:id`
-- **Auth:** Required
-- **Description:** Update an existing event by ID. Supports file upload for `coverImage`.
-- **URL Params:**
-  - `id` (string): Event ID
-- **Request Body (multipart/form-data):**
-  - `coverImage` (file, optional): New cover image
-  - Other event fields (see model)
-- **Response:**
-  - `200 OK`: Updated event object
-  - `404 Not Found`: Event not found
+### Create Event
 
-#### 5. Delete Event
-- **Endpoint:** `DELETE /events/:id`
-- **Auth:** Required
-- **Description:** Delete an event by its ID.
-- **URL Params:**
-  - `id` (string): Event ID
-- **Response:**
-  - `200 OK`: Deletion confirmation
-  - `404 Not Found`: Event not found
+- **POST** `/api/events`
+- **Header:** Authorization
+- **Body:** form-data (gunakan form, bukan JSON!)
+  - title, subTitle, description, date, time, location, registrationStart, registrationEnd, creatorId
+  - **coverImage** (file, wajib)
+- **Catatan:** Upload cover image dengan form-data field `coverImage`.
+
+### Update Event
+
+- **PUT** `/api/events/:id`
+- **Header:** Authorization
+- **Body:** form-data (gunakan form, bukan JSON!)
+  - Semua field event
+  - **coverImage** (file, opsional)
+- **Catatan:** Upload cover image baru jika ingin mengganti.
+
+### Delete Event
+
+- **DELETE** `/api/events/:id`
+- **Header:** Authorization
 
 ---
 
-### RSVP API
-**Base URL:** `/rsvps`
+## RSVP
 
-#### Fields
-- `status` (enum: `going`, `not_going`, `maybe`, default: `going`)
+### Get All RSVPs
 
-#### 1. Get All RSVPs
-- **Endpoint:** `GET /rsvps/`
-- **Auth:** Required
-- **Description:** Retrieve a list of all RSVPs.
-- **Response:**
-  - `200 OK`: Array of RSVP objects
+- **GET** `/api/rsvps`
+- **Header:** Authorization
 
-#### 2. Get RSVP by ID
-- **Endpoint:** `GET /rsvps/:id`
-- **Auth:** Required
-- **Description:** Retrieve details of a specific RSVP by ID.
-- **URL Params:**
-  - `id` (string): RSVP ID
-- **Response:**
-  - `200 OK`: RSVP object
-  - `404 Not Found`: RSVP not found
+### Get RSVP by ID
 
-#### 3. Create RSVP
-- **Endpoint:** `POST /rsvps/`
-- **Auth:** Required
-- **Description:** Create a new RSVP.
-- **Request Body:** JSON with RSVP fields (see model)
-- **Response:**
-  - `201 Created`: Created RSVP object
-  - `400 Bad Request`: Validation error
+- **GET** `/api/rsvps/:id`
+- **Header:** Authorization
 
-#### 4. Update RSVP
-- **Endpoint:** `PUT /rsvps/:id`
-- **Auth:** Required
-- **Description:** Update an existing RSVP by ID.
-- **URL Params:**
-  - `id` (string): RSVP ID
-- **Request Body:** JSON with RSVP fields (see model)
-- **Response:**
-  - `200 OK`: Updated RSVP object
-  - `404 Not Found`: RSVP not found
+### Create RSVP
 
-#### 5. Delete RSVP
-- **Endpoint:** `DELETE /rsvps/:id`
-- **Auth:** Required
-- **Description:** Delete an RSVP by ID.
-- **URL Params:**
-  - `id` (string): RSVP ID
-- **Response:**
-  - `200 OK`: Deletion confirmation
-  - `404 Not Found`: RSVP not found
+- **POST** `/api/rsvps`
+- **Header:** Authorization
+- **Body (JSON):**
+  - userId, eventId, status
+
+### Update RSVP
+
+- **PUT** `/api/rsvps/:id`
+- **Header:** Authorization
+- **Body (JSON):**
+  - status
+
+### Delete RSVP
+
+- **DELETE** `/api/rsvps/:id`
+- **Header:** Authorization
 
 ---
 
-## Error Handling
-- All errors are returned in JSON format with an `error` message.
-- Common HTTP status codes: `200 OK`, `201 Created`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Internal Server Error`.
+**Catatan Umum:**
 
----
-
-## File Uploads
-- File uploads (e.g., `coverImage` for blogs/events, `profile_pic` for users) use `multipart/form-data`.
-- Uploaded files are processed via the `multer` middleware.
-
----
-
-## Middleware
-- **verifyToken:** Ensures the request has a valid JWT token.
-- **multer:** Handles file uploads.
-
----
-
-## Running the Server
-
-Install dependencies:
-```
-npm install
-```
-
-Start the server:
-```
-npm start
-```
-
----
-
-## Contact
-For further information or issues, please contact the project maintainer.
+- Untuk endpoint yang membutuhkan upload gambar (`coverImage` atau `profile_pic`), gunakan form-data di Postman/Insomnia, bukan raw JSON.
+- Semua endpoint yang butuh login harus menyertakan header `Authorization: Bearer <token>`.
