@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Blog from "../models/Blog.js";
 import Event from "../models/Event.js";
 import RSVP from "../models/RSVP.js";
+import MembershipType from "../models/MembershipType.js";
 
 const association = async () => {
   try {
@@ -28,8 +29,12 @@ const association = async () => {
       as: "eventAttendees",
     });
 
-    // await db.sync({ force: true });
-    await db.sync();
+    // User - MembershipType
+    MembershipType.hasMany(User, { foreignKey: "membershipTypeId", as: "users" });
+    User.belongsTo(MembershipType, { foreignKey: "membershipTypeId", as: "membershipType" });
+
+    await db.sync({ force: true });
+    // await db.sync();
   } catch (error) {
     console.log(error.message);
   }

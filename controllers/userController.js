@@ -25,7 +25,20 @@ export const getUserById = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { email, username, password, role } = req.body;
+    const {
+      email,
+      username,
+      password,
+      role,
+      fullName,
+      phone,
+      birthDate,
+      domicile,
+      position,
+      institution,
+      industry,
+      membershipTypeId,
+    } = req.body;
     if (!username || !password) {
       const error = new Error("Username and password are required");
       error.statusCode = 400;
@@ -43,6 +56,14 @@ export const createUser = async (req, res) => {
       username,
       password: hashedPassword,
       role,
+      fullName,
+      phone,
+      birthDate,
+      domicile,
+      position,
+      institution,
+      industry,
+      membershipTypeId: membershipTypeId || 1,
       refreshToken: null,
     });
     const { password: _, refreshToken: __, ...safeUserData } = newUser.toJSON();
@@ -69,7 +90,20 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { email, username, password, role } = req.body;
+    const {
+      email,
+      username,
+      password,
+      role,
+      fullName,
+      phone,
+      birthDate,
+      domicile,
+      position,
+      institution,
+      industry,
+      membershipTypeId,
+    } = req.body;
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
     let profile_pic_url = user.profile_pic_url;
@@ -86,6 +120,14 @@ export const updateUser = async (req, res) => {
       username,
       password,
       role,
+      fullName,
+      phone,
+      birthDate,
+      domicile,
+      position,
+      institution,
+      industry,
+      membershipTypeId: membershipTypeId || 1,
       profile_pic_url,
     });
     res.json(user);
@@ -98,6 +140,19 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
+    // Delete profile picture from Cloudinary if exists
+    if (user.profile_pic_url) {
+      try {
+        // Extract public_id from the Cloudinary URL
+        const urlParts = user.profile_pic_url.split("/");
+        const fileName = urlParts[urlParts.length - 1];
+        const publicId = fileName.split(".")[0];
+        await cloudinary.uploader.destroy(`profile_pics/${publicId}`);
+      } catch (cloudErr) {
+        // Log but do not block user deletion if Cloudinary fails
+        console.error("Cloudinary deletion error:", cloudErr);
+      }
+    }
     await user.destroy();
     res.json({ message: "User deleted" });
   } catch (err) {

@@ -5,7 +5,7 @@ import User from "./User.js";
 const Blog = sequelize.define("Blog", {
   title: { type: DataTypes.STRING, allowNull: false },
   content: { type: DataTypes.TEXT, allowNull: false },
-  coverImage: { type: DataTypes.STRING }, // URL to Supabase or other storage
+  coverImage: { type: DataTypes.STRING },
   uploadDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 });
 
