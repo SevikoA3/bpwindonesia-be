@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cloudinary from "../util/cloudinary.js";
+import streamifier from "streamifier";
 
 export const getUsers = async (req, res) => {
   try {
@@ -70,7 +72,22 @@ export const updateUser = async (req, res) => {
     const { email, username, password, role } = req.body;
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
-    await user.update({ email, username, password, role });
+    let profile_pic_url = user.profile_pic_url;
+    if (req.file) {
+      const uploadResult = await streamUpload(req.file.buffer, {
+        folder: "profile_pics",
+        unique_filename: true,
+        overwrite: true,
+      });
+      profile_pic_url = uploadResult.secure_url;
+    }
+    await user.update({
+      email,
+      username,
+      password,
+      role,
+      profile_pic_url,
+    });
     res.json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -159,3 +176,13 @@ export const logout = async (req, res) => {
     });
   }
 };
+
+async function streamUpload(buffer, options = {}) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (result) resolve(result);
+      else reject(error);
+    });
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+}
