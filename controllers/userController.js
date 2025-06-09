@@ -43,12 +43,12 @@ export const createUser = async (req, res) => {
       username,
       password: hashedPassword,
       role,
-      refresh_token: null,
+      refreshToken: null,
     });
-    const { password: _, refresh_token: __, ...safeUserData } = newUser.toJSON();
-    const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "30s" });
+    const { password: _, refreshToken: __, ...safeUserData } = newUser.toJSON();
+    const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "60s" });
     const refreshToken = jwt.sign(safeUserData, process.env.JWT_REFRESH_SECRET, { expiresIn: "2d" });
-    await newUser.update({ refresh_token: refreshToken });
+    await newUser.update({ refreshToken: refreshToken });
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       secure: true,
@@ -126,10 +126,10 @@ export const login = async (req, res) => {
       throw error;
     }
     const userPlain = user.toJSON();
-    const { password: _, refresh_token: __, ...safeUserData } = userPlain;
-    const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "30s" });
+    const { password: _, refreshToken: __, ...safeUserData } = userPlain;
+    const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "60s" });
     const refreshToken = jwt.sign(safeUserData, process.env.JWT_REFRESH_SECRET, { expiresIn: "2d" });
-    await User.update({ refresh_token: refreshToken }, { where: { id: user.id } });
+    await User.update({ refreshToken: refreshToken }, { where: { id: user.id } });
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       secure: true,
@@ -139,6 +139,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       accessToken,
+      refreshToken,
       user: safeUserData,
     });
   } catch (error) {
@@ -156,14 +157,14 @@ export const logout = async (req, res) => {
       error.statusCode = 400;
       throw error;
     }
-    const user = await User.findOne({ where: { refresh_token: refreshToken } });
+    const user = await User.findOne({ where: { refreshToken: refreshToken } });
     if (!user) {
       const error = new Error("User not found");
       error.statusCode = 404;
       throw error;
     }
     const userId = user.id;
-    await User.update({ refresh_token: null }, { where: { id: userId } });
+    await User.update({ refreshToken: null }, { where: { id: userId } });
     res.clearCookie("refresh_token", {
       httpOnly: true,
       secure: true,
@@ -177,11 +178,37 @@ export const logout = async (req, res) => {
   }
 };
 
+export const refreshAccessToken = async (req, res) => {
+  try {
+    let refreshToken = req.cookies.refresh_token;
+    if (!refreshToken && req.body.refreshToken) {
+      refreshToken = req.body.refreshToken;
+    }
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token is required" });
+    }
+    const user = await User.findOne({ where: { refreshToken: refreshToken } });
+    if (!user) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid or expired refresh token" });
+      }
+      const { password: _, refreshToken: __, ...safeUserData } = user.toJSON();
+      const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "1m" });
+      res.status(200).json({ accessToken });
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 async function streamUpload(buffer, options = {}) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
-      if (result) resolve(result);
-      else reject(error);
+      if (error) return reject(error);
+      resolve(result);
     });
     streamifier.createReadStream(buffer).pipe(stream);
   });

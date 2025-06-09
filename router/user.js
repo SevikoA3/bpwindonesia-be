@@ -7,6 +7,7 @@ import {
   deleteUser,
   login,
   logout,
+  refreshAccessToken,
 } from "../controllers/userController.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import upload from "../middleware/multer.js";
@@ -20,5 +21,6 @@ userRouter.delete("/:id", verifyToken, deleteUser);
 userRouter.post("/", createUser);
 userRouter.post("/login", login);
 userRouter.post("/logout", logout);
+userRouter.post("/refresh-token", refreshAccessToken);
 
 export default userRouter;
