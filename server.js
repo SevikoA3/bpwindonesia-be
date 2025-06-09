@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import sequelize from "./util/db.js";
 import router from "./router/index.js";
 import association from "./util/assoc.js";
 

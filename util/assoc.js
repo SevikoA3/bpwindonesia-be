@@ -28,8 +28,8 @@ const association = async () => {
       as: "eventAttendees",
     });
 
-    await db.sync({ force: true });
-    // await db.sync();
+    // await db.sync({ force: true });
+    await db.sync();
   } catch (error) {
     console.log(error.message);
   }
