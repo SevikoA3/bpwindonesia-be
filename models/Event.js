@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../util/db.js";
-import User from "./User.js";
 
 const Event = sequelize.define("Event", {
   title: { type: DataTypes.STRING, allowNull: false },
@@ -12,6 +11,8 @@ const Event = sequelize.define("Event", {
   coverImage: { type: DataTypes.STRING },
   registrationStart: { type: DataTypes.DATE, allowNull: false },
   registrationEnd: { type: DataTypes.DATE, allowNull: false },
+}, {
+  timestamps: true // ensure createdAt and updatedAt are managed automatically
 });
 
 export default Event;

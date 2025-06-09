@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import router from "./router/index.js";
 import association from "./util/assoc.js";
 import cookieParser from "cookie-parser";
+import seedMembershipTypes from "./util/seedMembershipTypes.js";
 
 dotenv.config();
 
@@ -16,7 +17,8 @@ app.use("/api", router);
 
 const PORT = process.env.PORT || 3000;
 
-association().then(() => {
+association().then(async () => {
+  await seedMembershipTypes();
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
