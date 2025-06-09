@@ -19,6 +19,22 @@ Authorization: Bearer <token>
 ### Users API
 **Base URL:** `/users`
 
+#### Fields
+- `id` (integer, auto-increment, primary key)
+- `email` (string, required, unique)
+- `username` (string, required, unique)
+- `password` (string, required)
+- `refreshToken` (text, optional)
+- `role` (enum: `user`, `admin`, default: `user`)
+- `profile_pic_url` (string, optional)
+- `fullName` (string, optional)
+- `phone` (string, optional)
+- `birthDate` (date, optional)
+- `domicile` (string, optional)
+- `position` (string, optional)
+- `institution` (string, optional)
+- `industry` (string, optional)
+
 #### 1. Get All Users
 - **Endpoint:** `GET /users/`
 - **Auth:** Required
@@ -97,6 +113,12 @@ Authorization: Bearer <token>
 ### Blogs API
 **Base URL:** `/blogs`
 
+#### Fields
+- `title` (string, required)
+- `content` (text, required)
+- `coverImage` (string, optional)
+- `uploadDate` (date, default: now)
+
 #### 1. Get All Blogs
 - **Endpoint:** `GET /blogs/`
 - **Auth:** Required
@@ -153,6 +175,17 @@ Authorization: Bearer <token>
 ### Events API
 **Base URL:** `/events`
 
+#### Fields
+- `title` (string, required)
+- `subTitle` (string, optional)
+- `description` (text, required)
+- `date` (date, required)
+- `time` (string, required)
+- `location` (string, required)
+- `coverImage` (string, optional)
+- `registrationStart` (date, required)
+- `registrationEnd` (date, required)
+
 #### 1. Get All Events
 - **Endpoint:** `GET /events/`
 - **Auth:** Required
@@ -208,6 +241,9 @@ Authorization: Bearer <token>
 
 ### RSVP API
 **Base URL:** `/rsvps`
+
+#### Fields
+- `status` (enum: `going`, `not_going`, `maybe`, default: `going`)
 
 #### 1. Get All RSVPs
 - **Endpoint:** `GET /rsvps/`
