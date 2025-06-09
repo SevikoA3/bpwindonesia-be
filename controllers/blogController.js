@@ -14,7 +14,7 @@ async function streamUpload(buffer, options = {}) {
 
 export const getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.findAll({ include: "author" });
+    const blogs = await Blog.findAll({ include: "blogAuthor" });
     res.json(blogs);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -23,7 +23,7 @@ export const getBlogs = async (req, res) => {
 
 export const getBlogById = async (req, res) => {
   try {
-    const blog = await Blog.findByPk(req.params.id, { include: "author" });
+    const blog = await Blog.findByPk(req.params.id, { include: "blogAuthor" });
     if (!blog) return res.status(404).json({ error: "Blog not found" });
     res.json(blog);
   } catch (err) {
