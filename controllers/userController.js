@@ -70,8 +70,12 @@ export const createUser = async (req, res) => {
     const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "60s" });
     const refreshToken = jwt.sign(safeUserData, process.env.JWT_REFRESH_SECRET, { expiresIn: "2d" });
     await newUser.update({ refreshToken: refreshToken });
-    // Set refresh_token cookie with Partitioned attribute manually
-    res.setHeader('Set-Cookie', `refresh_token=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=None; Partitioned; Max-Age=${3 * 24 * 60 * 60}`);
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 3 * 24 * 60 * 60 * 1000,
+    });
     return res.status(201).json({
       message: "User created successfully",
       accessToken,
@@ -181,8 +185,12 @@ export const login = async (req, res) => {
     const accessToken = jwt.sign(safeUserData, process.env.JWT_SECRET, { expiresIn: "60s" });
     const refreshToken = jwt.sign(safeUserData, process.env.JWT_REFRESH_SECRET, { expiresIn: "2d" });
     await User.update({ refreshToken: refreshToken }, { where: { id: user.id } });
-    // Set refresh_token cookie with Partitioned attribute manually
-    res.setHeader('Set-Cookie', `refresh_token=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=None; Partitioned; Max-Age=${3 * 24 * 60 * 60}`);
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 3 * 24 * 60 * 60 * 1000,
+    });
     return res.status(200).json({
       message: "Login successful",
       accessToken,
@@ -217,8 +225,6 @@ export const logout = async (req, res) => {
       secure: true,
       sameSite: "none",
     });
-    // Overwrite cookie with expired Partitioned attribute for full removal
-    res.setHeader('Set-Cookie', `refresh_token=; Path=/; HttpOnly; Secure; SameSite=None; Partitioned; Max-Age=0`);
     return res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     return res.status(error.statusCode || 500).json({
