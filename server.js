@@ -9,10 +9,15 @@ import seedMembershipTypes from "./util/seedMembershipTypes.js";
 dotenv.config();
 
 const app = express();
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://bpwindonesia-fe-938071808488.europe-west1.run.app",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
