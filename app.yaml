@@ -1,0 +1,2 @@
+service: bpwindonesia-be
+runtime: nodejs20
