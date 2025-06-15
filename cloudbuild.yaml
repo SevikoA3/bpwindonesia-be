@@ -2,6 +2,19 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+  - name: "alpine"
+    entrypoint: "sh"
+    args:
+      - -c
+      - |
+        echo "service: bpwindonesia-be" > app.yaml
+        echo "runtime: nodejs20" >> app.yaml
+        echo "env_variables:" >> app.yaml
+        echo "  PORT: '${_PORT}'" >> app.yaml
+        echo "  DB_HOST: '${_DB_HOST}'" >> app.yaml
+        echo "  DB_NAME: '${_DB_NAME}'" >> app.yaml
+        echo "  DB_USER: '${_DB_USER}'" >> app.yaml
+        echo "  DB_PASS: '${_DB_PASS}'" >> app.yaml
   - name: "gcr.io/cloud-builders/npm"
     args: ["install"]
   - name: "gcr.io/cloud-builders/gcloud"
