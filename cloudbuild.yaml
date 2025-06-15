@@ -1,9 +1,9 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
   - name: "gcr.io/cloud-builders/npm"
     args: ["install"]
-  - name: "gcr.io/cloud-builders/npm"
-    args: ["run", "build"]
-    # Jika tidak ada script build, bisa dihapus step ini
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy", "app.yaml"]
     # Deploy ke App Engine menggunakan app.yaml
