@@ -10,7 +10,6 @@ steps:
         echo "service: bpwindonesia-be" > app.yaml
         echo "runtime: nodejs20" >> app.yaml
         echo "env_variables:" >> app.yaml
-        echo "  PORT: '${_PORT}'" >> app.yaml
         echo "  DB_HOST: '${_DB_HOST}'" >> app.yaml
         echo "  DB_NAME: '${_DB_NAME}'" >> app.yaml
         echo "  DB_USER: '${_DB_USER}'" >> app.yaml
