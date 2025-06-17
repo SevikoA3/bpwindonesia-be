@@ -14,6 +14,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://bpwindonesia-fe-938071808488.europe-west1.run.app",
+      "https://bpwindonesia-fe-dot-h-02-451302.et.r.appspot.com",
     ],
     credentials: true,
   })
